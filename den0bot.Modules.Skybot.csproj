@@ -95,7 +95,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\den0bot\den0bot\den0bot.csproj">
+    <ProjectReference Include="..\den0bot\den0bot.csproj">
       <Project>{cd9f1713-0320-4afe-bf86-89c86d791ea2}</Project>
       <Name>den0bot</Name>
     </ProjectReference>
