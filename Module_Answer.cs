@@ -13,9 +13,11 @@ namespace den0bot.Modules.Skybot
     public class Module_Answer : IModule, IReceiveAllMessages
     {
         private readonly SQLiteConnection connection;
+        private readonly Dictionary<long, DateTime> nextPost = new Dictionary<long, DateTime>(); // chatID, time
+        private const int cooldown = 5; // minutes
 
 		// not camelcase for backward compat
-        private class words
+		private class words
         {
 	        [PrimaryKey]
 	        public string message { get; set; }
@@ -32,37 +34,41 @@ namespace den0bot.Modules.Skybot
             dbCache = connection.Table<words>().ToList();
         }
 
-        public void ReceiveMessage(Message msg)
-        {
-            // ignoring triggers
-            if (msg.Text.IndexOf('/', 0, 1) >= 0)
-                return;
+		public void ReceiveMessage(Message msg)
+		{
+			if (!nextPost.ContainsKey(msg.Chat.Id))
+				nextPost.Add(msg.Chat.Id, DateTime.Now);
 
-            try
-            {
-	            var words = dbCache.Where(x => x.message == msg.Text.ToLower()).ToArray();
-	            if (words.Length > 0)
-	            {
-		            string result;
-					if (words.Length == 1)
-		            {
-			            result = words[0].answer;
-		            }
-		            else
+			if (nextPost[msg.Chat.Id] < DateTime.Now)
+			{
+				try
+				{
+					var words = dbCache.Where(x => x.message == msg.Text.ToLower()).ToArray();
+					if (words.Length > 0)
 					{
-						result = words[RNG.Next(0, words.Length)].answer;
+						string result;
+						if (words.Length == 1)
+						{
+							result = words[0].answer;
+						}
+						else
+						{
+							result = words[RNG.Next(0, words.Length)].answer;
+						}
+
+						// for backward compatibility with old base 
+						result = result.Replace("%username%", msg.From.FirstName);
+
+						API.SendMessage(result, msg.Chat);
+
+						nextPost[msg.Chat.Id] = DateTime.Now.AddMinutes(cooldown);
 					}
-
-		            // for backward compatibility with old base 
-		            result = result.Replace("%username%", msg.From.FirstName);
-
-					API.SendMessage(result, msg.Chat);
 				}
-            }
-            catch (Exception e)
-            {
-                Log.Error(e.Message);
-            }
-        }
+				catch (Exception e)
+				{
+					Log.Error(e.Message);
+				}
+			}
+		}
     }
 }
