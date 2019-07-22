@@ -2,6 +2,7 @@
 
 using System;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using den0bot.Util;
 using Telegram.Bot.Types;
 
@@ -9,7 +10,7 @@ namespace den0bot.Modules.Skybot
 {
 	public class Module_Roll : IModule, IReceiveAllMessages
 	{
-		public void ReceiveMessage(Message msg)
+		public async Task ReceiveMessage(Message msg)
 		{
 			Match match = Regex.Match(msg.Text, @"(^\d)d(\d+$)");
 			if (match.Success)
@@ -26,17 +27,17 @@ namespace den0bot.Modules.Skybot
 							i++;
 						}
 
-						API.SendMessage(result, msg.Chat);
+						await API.SendMessage(result, msg.Chat.Id);
 					}
 					else
 					{
-						API.SendMessage("Не знаю таких чисел.", msg.Chat);
+						await API.SendMessage("Не знаю таких чисел.", msg.Chat.Id);
 					}
 				}
 				catch (Exception e)
 				{
 					Log.Error(e.Message);
-					API.SendMessage("Нихуя ты загнул.", msg.Chat);
+					await API.SendMessage("Нихуя ты загнул.", msg.Chat.Id);
 				}
 			}
 		}

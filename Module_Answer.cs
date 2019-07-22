@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using den0bot.Util;
 using SQLite;
 using Telegram.Bot.Types;
@@ -34,7 +35,7 @@ namespace den0bot.Modules.Skybot
             dbCache = connection.Table<words>().ToList();
         }
 
-		public void ReceiveMessage(Message msg)
+		public async Task ReceiveMessage(Message msg)
 		{
 			if (!nextPost.ContainsKey(msg.Chat.Id))
 				nextPost.Add(msg.Chat.Id, DateTime.Now);
@@ -59,7 +60,7 @@ namespace den0bot.Modules.Skybot
 						// for backward compatibility with old base 
 						result = result.Replace("%username%", msg.From.FirstName);
 
-						API.SendMessage(result, msg.Chat);
+						await API.SendMessage(result, msg.Chat.Id);
 
 						nextPost[msg.Chat.Id] = DateTime.Now.AddMinutes(cooldown);
 					}
