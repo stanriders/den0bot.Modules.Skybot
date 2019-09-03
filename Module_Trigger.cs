@@ -66,8 +66,6 @@ namespace den0bot.Modules.Skybot
             public long ChatID { get; set; }
         }
 
-        private string _dbFolderPath = "\\plugins\\MTrigger.db";
-
         // коллекция триггеров из БД
         private List<TData> _tDataList = new List<TData>();
         // коллекция подобранных, но еще не сработавших триггеров
