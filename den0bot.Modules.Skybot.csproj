@@ -4,26 +4,25 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>den0bot.Modules.Skybot</RootNamespace>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <OutputPath>..\den0bot\bin\$(Configuration)\$(TargetFramework.ToLowerInvariant())\Modules</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="MFicBook.cs" />
-    <Compile Remove="MNotepad.cs" />
     <Compile Remove="Module_Timer.cs" />
-    <Compile Remove="MOrganiser.cs" />
     <Compile Remove="MRandom.cs" />
-    <Compile Remove="MTrigger.cs" />
     <Compile Remove="MYouTube.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <PackageReference Include="sqlite-net-pcl" Version="1.6.292" />
-    <PackageReference Include="Telegram.Bot" Version="15.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\den0bot\den0bot.csproj" />
+    <ProjectReference Include="..\den0bot\den0bot.csproj">
+	    <Private>false</Private>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
