@@ -15,7 +15,6 @@
   <ItemGroup>
     <Compile Remove="MFicBook.cs" />
     <Compile Remove="Module_Timer.cs" />
-    <Compile Remove="MRandom.cs" />
     <Compile Remove="MYouTube.cs" />
   </ItemGroup>
 

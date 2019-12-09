@@ -8,145 +8,148 @@ using Telegram.Bot.Types;
 
 namespace den0bot.Modules.Skybot
 {
-    public class Module_Trigger : IModule, IReceiveAllMessages
-    {
-        private class TData
-        {
-            /// <summary>
-            /// Список ID пользователя(-ей) через пробел
-            /// </summary>
-            public string UserID { get; set; }
+	public class Module_Trigger : IModule, IReceiveAllMessages
+	{
+		private class TData
+		{
+			/// <summary>
+			/// Список ID пользователя(-ей) через пробел
+			/// </summary>
+			public string UserID { get; set; }
 
-            /// <summary>
-            /// Список слов через пробел
-            /// </summary>
-            public string Words { get; set; }
+			/// <summary>
+			/// Список слов через пробел
+			/// </summary>
+			public string Words { get; set; }
 
-            /// <summary>
-            /// Количество слов, необходимых для срабатывания триггера
-            /// </summary>
-            public int Count { get; set; }
+			/// <summary>
+			/// Количество слов, необходимых для срабатывания триггера
+			/// </summary>
+			public int Count { get; set; }
 
-            /// <summary>
-            /// Время, в течение которого должны быть найдены слова из Words Count раз
-            /// </summary>
-            public int Timeout { get; set; }
+			/// <summary>
+			/// Время, в течение которого должны быть найдены слова из Words Count раз
+			/// </summary>
+			public int Timeout { get; set; }
 
-            /// <summary>
-            /// Ответы бота через ;
-            /// </summary>
-            public string Answers { get; set; }
+			/// <summary>
+			/// Ответы бота через ;
+			/// </summary>
+			public string Answers { get; set; }
 
-            /// <summary>
-            /// Уникальный ID триггера, позволяет добавлять и идентифицировать несколько триггеров в коллекцию TUserData с одинаковым ChatID
-            /// </summary>
-            public int DataID { get; set; }
-        }
+			/// <summary>
+			/// Уникальный ID триггера, позволяет добавлять и идентифицировать несколько триггеров в коллекцию TUserData с одинаковым ChatID
+			/// </summary>
+			public int DataID { get; set; }
+		}
 
-        private class TUserData
-        {
-            /// <summary>
-            /// Совпавший по UserID триггер
-            /// </summary>
-            public TData TData { get; set; }
+		private class TUserData
+		{
+			/// <summary>
+			/// Совпавший по UserID триггер
+			/// </summary>
+			public TData TData { get; set; }
 
-            /// <summary>
-            /// Количество слов, найденных сейчас до истечения таймаута
-            /// </summary>
-            public int Count { get; set; }
+			/// <summary>
+			/// Количество слов, найденных сейчас до истечения таймаута
+			/// </summary>
+			public int Count { get; set; }
 
-            /// <summary>
-            /// Время последнего обновления счетчика
-            /// </summary>
-            public DateTime LastTime { get; set; }
+			/// <summary>
+			/// Время последнего обновления счетчика
+			/// </summary>
+			public DateTime LastTime { get; set; }
 
-            /// <summary>
-            /// ID чата для ответа
-            /// </summary>
-            public long ChatID { get; set; }
-        }
+			/// <summary>
+			/// ID чата для ответа
+			/// </summary>
+			public long ChatID { get; set; }
+		}
 
-        // коллекция триггеров из БД
-        private List<TData> _tDataList = new List<TData>();
-        // коллекция подобранных, но еще не сработавших триггеров
-        private List<TUserData> _tUserDataList = new List<TUserData>();
+		// коллекция триггеров из БД
+		private List<TData> _tDataList = new List<TData>();
 
-        public Module_Trigger()
-        {
-            var connection = new SQLiteConnection(GetConfigVariable("dbpath"));
-            connection.CreateTable<TData>();
+		// коллекция подобранных, но еще не сработавших триггеров
+		private List<TUserData> _tUserDataList = new List<TUserData>();
 
-            _tDataList = connection.Table<TData>().ToList();
-        }
+		public Module_Trigger()
+		{
+			var connection = new SQLiteConnection(GetConfigVariable("dbpath"));
+			connection.CreateTable<TData>();
 
-        public async Task ReceiveMessage(Message message)
-        {
-            if (_tDataList.Any())
-                await API.SendMessage(AnalyseMessage(message.Text.ToLower(), message.Chat.Id, message.From.Username), message.Chat.Id);
-        }
+			_tDataList = connection.Table<TData>().ToList();
+		}
 
-        private string AnalyseMessage(string message, long chatId, string userId)
-        {
-            foreach (var tData in _tDataList)
-            {
-                // проверяем совпадение ника в триггере
-                if (tData.UserID.Split(new Char[] { ' ' }).Any(x => x == userId || x == "<all>"))
-                {
-                    var wordList = message
-                        .Replace(',', ' ')
-                        .Replace('.', ' ')
-                        .Replace('?', ' ')
-                        .Replace('!', ' ')
-                        .Replace('-', ' ')
-                        .Split(new Char[] { ' ' })
-                        .ToList();
+		public async Task ReceiveMessage(Message message)
+		{
+			if (_tDataList.Any())
+				await API.SendMessage(AnalyseMessage(message.Text.ToLower(), message.Chat.Id, message.From.Username),
+					message.Chat.Id);
+		}
 
-                    // првоеряем совпадение любого слова из сообщения со словом из триггера
-                    if (tData.Words
-                        .Split(new Char[] { ' ' })
-                        .ToList()
-                        .Intersect(wordList)
-                        .ToList()
-                        .Count > 0)
-                    {
-                        // проверяем наличие этого триггера в коллекции найденных триггеров по ID триггера и чата
-                        if (_tUserDataList.Any(x => x.TData.DataID == tData.DataID && x.ChatID == chatId))
-                        {
-                            // триггер найден, проверяем кол-во найденных слов с необходимым для срабатывания
-                            var tDataFound = _tUserDataList.Find(x => x.TData.DataID == tData.DataID && x.ChatID == chatId);
-                            tDataFound.Count++;
+		private string AnalyseMessage(string message, long chatId, string userId)
+		{
+			foreach (var tData in _tDataList)
+			{
+				// проверяем совпадение ника в триггере
+				if (tData.UserID.Split(new Char[] {' '}).Any(x => x == userId || x == "<all>"))
+				{
+					var wordList = message
+						.Replace(',', ' ')
+						.Replace('.', ' ')
+						.Replace('?', ' ')
+						.Replace('!', ' ')
+						.Replace('-', ' ')
+						.Split(new Char[] {' '})
+						.ToList();
 
-                            if (tDataFound.Count == tDataFound.TData.Count)
-                            {
-                                string[] answerList = tDataFound.TData.Answers.Split(new Char[] { ';' });
+					// првоеряем совпадение любого слова из сообщения со словом из триггера
+					if (tData.Words
+						    .Split(new Char[] {' '})
+						    .ToList()
+						    .Intersect(wordList)
+						    .ToList()
+						    .Count > 0)
+					{
+						// проверяем наличие этого триггера в коллекции найденных триггеров по ID триггера и чата
+						if (_tUserDataList.Any(x => x.TData.DataID == tData.DataID && x.ChatID == chatId))
+						{
+							// триггер найден, проверяем кол-во найденных слов с необходимым для срабатывания
+							var tDataFound =
+								_tUserDataList.Find(x => x.TData.DataID == tData.DataID && x.ChatID == chatId);
+							tDataFound.Count++;
 
-                                _tUserDataList.Remove(tDataFound);
+							if (tDataFound.Count == tDataFound.TData.Count)
+							{
+								string[] answerList = tDataFound.TData.Answers.Split(new Char[] {';'});
 
-                                // проверяем истечение таймаута
-                                if ((int)(DateTime.Now - tDataFound.LastTime).TotalSeconds <= tDataFound.TData.Timeout)
-                                {
-                                    return answerList[RNG.Next(0, answerList.Length/* - 1*/)];
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // триггер не найден, добавляем в коллекцию
-                            _tUserDataList.Add(new TUserData()
-                            {
-                                TData = tData,
-                                Count = 1,
-                                LastTime = DateTime.Now,
-                                ChatID = chatId,
-                            });
-                        }
+								_tUserDataList.Remove(tDataFound);
 
-                        break;
-                    }
-                }
-            }
+								// проверяем истечение таймаута
+								if ((int) (DateTime.Now - tDataFound.LastTime).TotalSeconds <= tDataFound.TData.Timeout)
+								{
+									return answerList[RNG.Next(0, answerList.Length /* - 1*/)];
+								}
+							}
+						}
+						else
+						{
+							// триггер не найден, добавляем в коллекцию
+							_tUserDataList.Add(new TUserData()
+							{
+								TData = tData,
+								Count = 1,
+								LastTime = DateTime.Now,
+								ChatID = chatId,
+							});
+						}
 
-            return string.Empty;
-        }
-    }
+						break;
+					}
+				}
+			}
+
+			return string.Empty;
+		}
+	}
 }

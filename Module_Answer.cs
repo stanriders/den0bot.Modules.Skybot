@@ -10,30 +10,37 @@ using Telegram.Bot.Types;
 
 namespace den0bot.Modules.Skybot
 {
-    // Main answering module
-    public class Module_Answer : IModule, IReceiveAllMessages
-    {
-        private readonly SQLiteConnection connection;
-        private readonly Dictionary<long, DateTime> nextPost = new Dictionary<long, DateTime>(); // chatID, time
-        private const int cooldown = 5; // minutes
+	// Main answering module
+	public class Module_Answer : IModule, IReceiveAllMessages
+	{
+		private readonly Dictionary<long, DateTime> nextPost = new Dictionary<long, DateTime>(); // chatID, time
+		private const int cooldown = 5; // minutes
 
 		// not camelcase for backward compat
 		private class words
-        {
-	        [PrimaryKey]
-	        public string message { get; set; }
+		{
+			[PrimaryKey]
+			public string message { get; set; }
 
-	        public string answer { get; set; }
+			public string answer { get; set; }
 		}
-        private readonly List<words> dbCache;
 
-		public Module_Answer() : base()
-        {
-            connection = new SQLiteConnection(GetConfigVariable("dbpath"));
-            connection.CreateTable<words>();
+		private readonly List<words> dbCache;
 
-            dbCache = connection.Table<words>().ToList();
-        }
+		public Module_Answer()
+		{
+			using (var connection = new SQLiteConnection(GetConfigVariable("dbpath")))
+			{
+				connection.CreateTable<words>();
+				dbCache = connection.Table<words>().ToList();
+			}
+
+			AddCommand(new Command
+			{
+				Name = "addreply",
+				ActionAsync = AddReply
+			});
+		}
 
 		public async Task ReceiveMessage(Message msg)
 		{
@@ -54,7 +61,7 @@ namespace den0bot.Modules.Skybot
 						}
 						else
 						{
-							result = words[RNG.Next(0, words.Length)].answer;
+							result = words[RNG.NextNoMemory(0, words.Length)].answer;
 						}
 
 						// for backward compatibility with old base 
@@ -71,5 +78,35 @@ namespace den0bot.Modules.Skybot
 				}
 			}
 		}
-    }
+
+		private async Task<string> AddReply(Message msg)
+		{
+			var split = msg.Text.Remove(0, 10)
+								.Split('"')
+								.Select((element, index) => index % 2 == 0  // If even index
+									? element.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)  // Split the item
+									: new [] { element })  // Keep the entire item
+								.SelectMany(element => element).ToList();
+
+			split[0] = split[0].ToLower();
+
+			if (split.Count == 2 && split[0] != "лол")
+			{
+				using (var connection = new SQLiteConnection(GetConfigVariable("dbpath")))
+				{
+					var word = new words
+					{
+						message = split[0],
+						answer = split[1]
+					};
+					connection.Insert(word);
+					dbCache.Add(word);
+				}
+
+				return "Добавил";
+			}
+
+			return "/addreply \"сообщение\" \"ответ на сообщение\"";
+		}
+	}
 }
