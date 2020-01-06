@@ -38,7 +38,7 @@ namespace den0bot.Modules.Skybot
 			AddCommand(new Command
 			{
 				Name = "addreply",
-				ActionAsync = AddReply
+				Action = AddReply
 			});
 		}
 
@@ -79,7 +79,7 @@ namespace den0bot.Modules.Skybot
 			}
 		}
 
-		private async Task<string> AddReply(Message msg)
+		private string AddReply(Message msg)
 		{
 			var split = msg.Text.Remove(0, 10)
 								.Split('"')

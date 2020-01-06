@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>den0bot.Modules.Skybot</RootNamespace>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\den0bot\den0bot.csproj">
-	    <Private>false</Private>
+      <Private>false</Private>
     </ProjectReference>
   </ItemGroup>
 
