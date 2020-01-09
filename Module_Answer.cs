@@ -47,7 +47,7 @@ namespace den0bot.Modules.Skybot
 			if (!nextPost.ContainsKey(msg.Chat.Id))
 				nextPost.Add(msg.Chat.Id, DateTime.Now);
 
-			if (nextPost[msg.Chat.Id] < DateTime.Now)
+			if (!string.IsNullOrEmpty(msg.Text) && nextPost[msg.Chat.Id] < DateTime.Now)
 			{
 				try
 				{
