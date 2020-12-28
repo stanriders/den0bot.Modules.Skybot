@@ -101,14 +101,15 @@ namespace den0bot.Modules.Skybot
 
 			if (split.Count == 2 && split[0] != "лол")
 			{
-				using (var connection = new SQLiteConnection(GetConfigVariable("dbpath")))
+				using (var db = new Database(GetConfigVariable("dbpath")))
 				{
-					var word = new words
+					var word = new Database.Word
 					{
-						message = split[0],
-						answer = split[1]
+						Message = split[0],
+						Answer = split[1]
 					};
-					connection.Insert(word);
+					db.Words.Add(word);
+					db.SaveChanges();
 					dbCache.Add(word);
 				}
 

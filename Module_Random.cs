@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using den0bot.Util;
-using SQLite;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot.Types;
 
 namespace den0bot.Modules.Skybot
@@ -13,14 +14,32 @@ namespace den0bot.Modules.Skybot
 
 		// probability of triggering bot that defined as one from the specified number
 		private int interval;
-		private Dictionary<long, List<string>> _textList = new Dictionary<long, List<string>>();
+		private Dictionary<long, List<string>> _textList = new();
+
+		public sealed class Database : DbContext
+		{
+			[Table("TData")]
+			public class TData
+			{
+				//[Key] [Column("message")] public string Message { get; set; }
+
+				//[Column("answer")] public string Answer { get; set; }
+			}
+
+			public Database(string connectionString)
+			{
+				Database.SetConnectionString(connectionString);
+				Database.EnsureCreated();
+			}
+
+			public DbSet<TData> Data { get; set; }
+		}
 
 		public Module_Random()
 		{
-			using (var connection = new SQLiteConnection(GetConfigVariable("dbpath")))
+			using (var connection = new Database(GetConfigVariable("dbpath")))
 			{
-				//connection.CreateTable<TData>();
-				//_tDataList = connection.Table<TData>().ToList();
+				//_textList = connection.Data.ToDictionary(x=> x.);
 			}
 
 			interval = Convert.ToInt32(GetConfigVariable("interval"));

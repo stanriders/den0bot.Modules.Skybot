@@ -12,7 +12,7 @@ namespace den0bot.Modules.Skybot
 			public string Text { get; init; }
 			public DateTime Date { get; init; }
 			public long ChatID { get; init; }
-			public bool Sent { get; init; }
+			public bool Sent { get; set; }
 		}
 
 		private readonly List<TData> dataList = new();
