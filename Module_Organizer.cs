@@ -9,13 +9,13 @@ namespace den0bot.Modules.Skybot
     {
         private class TData
         {
-            public string Text { get; set; }
-            public DateTime Date { get; set; }
-            public long ChatID { get; set; }
+            public string Text { get; init; }
+            public DateTime Date { get; init; }
+            public long ChatID { get; init; }
         }
 
-        private readonly List<TData> dataList = new List<TData>();
-        private readonly Regex regex = new Regex(@"org(?:aniser)?\s+(?:(\d\d?):(\d\d?)\s?(\d\d?)?\.?(\d\d?)?\s+(.+)|(\d\d?):(\d\d?)\s+(.+))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private readonly List<TData> dataList = new();
+        private readonly Regex regex = new(@"org(?:aniser)?\s+(?:(\d\d?):(\d\d?)\s?(\d\d?)?\.?(\d\d?)?\s+(.+)|(\d\d?):(\d\d?)\s+(.+))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private DateTime lastCheckTime = DateTime.Now;
         private const int interval = 60; // seconds
 
@@ -60,7 +60,7 @@ namespace den0bot.Modules.Skybot
                         int.Parse(mvOrg.Groups[1].Value),
                         int.Parse(mvOrg.Groups[2].Value), 0);
 
-                    dataList.Add(new TData()
+                    dataList.Add(new TData
                     {
                         Text = mvOrg.Groups[5].Value,
                         Date = date,
@@ -80,7 +80,7 @@ namespace den0bot.Modules.Skybot
                             int.Parse(mvOrg.Groups[1].Value),
                             int.Parse(mvOrg.Groups[2].Value), 0);
 
-                        dataList.Add(new TData()
+                        dataList.Add(new TData
                         {
                             Text = mvOrg.Groups[5].Value,
                             Date = date,

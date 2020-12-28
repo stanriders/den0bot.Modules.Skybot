@@ -8,7 +8,7 @@ namespace den0bot.Modules.Skybot
 {
     public class Module_Notepad : IModule
     {
-        private Dictionary<long, List<string>> notepadList = new Dictionary<long, List<string>>();
+        private Dictionary<long, List<string>> notepadList = new();
 
         public Module_Notepad()
         {
@@ -73,7 +73,7 @@ namespace den0bot.Modules.Skybot
             if (notepadList.Keys.Any(x => x.ToString() == chat.ToString()))
                 notepadList[chat].Add(text);
             else
-                notepadList.Add(chat, new List<string>() { text });
+                notepadList.Add(chat, new List<string> { text });
 
             return "Записал под номером " + (notepadList[chat].Count) + ", такие дела";
         }

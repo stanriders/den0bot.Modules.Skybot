@@ -2,38 +2,49 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using den0bot.Util;
-using SQLite;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot.Types;
 
 namespace den0bot.Modules.Skybot
 {
-    // Main answering module
-    public class Module_Answer : IModule, IReceiveAllMessages
-    {
-        private readonly SQLiteConnection connection;
-        private readonly Dictionary<long, DateTime> nextPost = new Dictionary<long, DateTime>(); // chatID, time
-        private const int cooldown = 5; // minutes
+	// Main answering module
+	public class Module_Answer : IModule, IReceiveAllMessages
+	{
+		public sealed class Database : DbContext
+		{
+			[Table("words")]
+			public class Word
+			{
+				[Key] [Column("message")] public string Message { get; set; }
 
-		// not camelcase for backward compat
-		private class words
-        {
-	        [PrimaryKey]
-	        public string message { get; set; }
+				[Column("answer")] public string Answer { get; set; }
+			}
 
-	        public string answer { get; set; }
+			public Database(string connectionString)
+			{
+				Database.SetConnectionString(connectionString);
+				Database.EnsureCreated();
+			}
+
+			public DbSet<Word> Words { get; set; }
 		}
-        private readonly List<words> dbCache;
 
-		public Module_Answer() : base()
-        {
-            connection = new SQLiteConnection(GetConfigVariable("dbpath"));
-            connection.CreateTable<words>();
+		private readonly Dictionary<long, DateTime> nextPost = new(); // chatID, time
+		private const int cooldown = 5; // minutes
 
-            dbCache = connection.Table<words>().ToList();
-        }
+		private readonly List<Database.Word> dbCache;
+
+		public Module_Answer()
+		{
+			using (var db = new Database(GetConfigVariable("dbpath")))
+				dbCache = db.Words.ToList();
+
+		}
 
 		public async Task ReceiveMessage(Message msg)
 		{
@@ -44,17 +55,17 @@ namespace den0bot.Modules.Skybot
 			{
 				try
 				{
-					var words = dbCache.Where(x => x.message == msg.Text.ToLower()).ToArray();
+					var words = dbCache.Where(x => x.Message == msg.Text.ToLower()).ToArray();
 					if (words.Length > 0)
 					{
 						string result;
 						if (words.Length == 1)
 						{
-							result = words[0].answer;
+							result = words[0].Answer;
 						}
 						else
 						{
-							result = words[RNG.Next(0, words.Length)].answer;
+							result = words[RNG.Next(0, words.Length)].Answer;
 						}
 
 						// for backward compatibility with old base 
@@ -71,5 +82,5 @@ namespace den0bot.Modules.Skybot
 				}
 			}
 		}
-    }
+	}
 }
