@@ -5,97 +5,106 @@ using Telegram.Bot.Types;
 
 namespace den0bot.Modules.Skybot
 {
-    public class Module_Organizer : IModule
-    {
-        private class TData
-        {
-            public string Text { get; init; }
-            public DateTime Date { get; init; }
-            public long ChatID { get; init; }
-        }
+	public class Module_Organizer : IModule
+	{
+		private class TData
+		{
+			public string Text { get; init; }
+			public DateTime Date { get; init; }
+			public long ChatID { get; init; }
+			public bool Sent { get; init; }
+		}
 
-        private readonly List<TData> dataList = new();
-        private readonly Regex regex = new(@"org(?:aniser)?\s+(?:(\d\d?):(\d\d?)\s?(\d\d?)?\.?(\d\d?)?\s+(.+)|(\d\d?):(\d\d?)\s+(.+))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private DateTime lastCheckTime = DateTime.Now;
-        private const int interval = 60; // seconds
+		private readonly List<TData> dataList = new();
 
-        public Module_Organizer()
-        {
-            AddCommand(new Command
-            {
-                Names = {"org", "organizer"},
-                Action = Add
-            });
-        }
+		private readonly Regex regex =
+			new(@"org(?:aniser)?\s+(?:(\d\d?):(\d\d?)\s?(\d\d?)?\.?(\d\d?)?\s+(.+)|(\d\d?):(\d\d?)\s+(.+))",
+				RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        public override void Think()
-        {
-            if (dataList.Count > 0 && lastCheckTime < DateTime.Now)
-            {
-                foreach (var orgData in dataList)
-                {
-                    if (orgData.Date.ToShortDateString() != DateTime.Now.ToShortDateString()) continue;
-                    if (orgData.Date.ToShortTimeString() != DateTime.Now.ToShortTimeString()) continue;
+		private DateTime lastCheckTime = DateTime.Now;
+		private const int interval = 60; // seconds
 
-                    // we don't care if it'll send or not
-                    _ = API.SendMessage(orgData.Text, orgData.ChatID);
-                }
+		public Module_Organizer()
+		{
+			AddCommand(new Command
+			{
+				Names = {"org", "organizer"},
+				Action = Add
+			});
+		}
 
-                lastCheckTime = DateTime.Now.AddSeconds(interval);
-            }
-        }
+		public override void Think()
+		{
+			if (dataList.Count > 0 && lastCheckTime < DateTime.Now)
+			{
+				foreach (var orgData in dataList)
+				{
+					if (orgData.Sent) continue;
+					if (orgData.Date.ToShortDateString() != DateTime.Now.ToShortDateString()) continue;
+					if (orgData.Date.ToShortTimeString() != DateTime.Now.ToShortTimeString()) continue;
 
-        private string Add(Message msg)
-        {
-            Match mvOrg = regex.Match(msg.Text);
+					// we don't care if it'll send or not
+					_ = API.SendMessage(orgData.Text, orgData.ChatID);
 
-            if (mvOrg.Success)
-            {
-                try
-                {
-                    DateTime date = new DateTime(
-                        DateTime.Now.Year,
-                        int.Parse(mvOrg.Groups[4].Value),
-                        int.Parse(mvOrg.Groups[3].Value),
-                        int.Parse(mvOrg.Groups[1].Value),
-                        int.Parse(mvOrg.Groups[2].Value), 0);
+					orgData.Sent = true; // to prevent posting the same entry multiple times
+				}
 
-                    dataList.Add(new TData
-                    {
-                        Text = mvOrg.Groups[5].Value,
-                        Date = date,
-                        ChatID = msg.Chat.Id,
-                    });
+				lastCheckTime = DateTime.Now.AddSeconds(interval);
+			}
+		}
 
-                    return "Добавлено напоминание в " + date.Hour + ":" + date.Minute + " " + date.Day + "." + date.Month;
-                }
-                catch (Exception)
-                {
-                    try
-                    {
-                        DateTime date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day,
-                            int.Parse(mvOrg.Groups[1].Value),
-                            int.Parse(mvOrg.Groups[2].Value), 0);
+		private string Add(Message msg)
+		{
+			Match mvOrg = regex.Match(msg.Text);
 
-                        dataList.Add(new TData
-                        {
-                            Text = mvOrg.Groups[5].Value,
-                            Date = date,
-                            ChatID = msg.Chat.Id,
-                        });
+			if (mvOrg.Success)
+			{
+				try
+				{
+					DateTime date = new DateTime(
+						DateTime.Now.Year,
+						int.Parse(mvOrg.Groups[4].Value),
+						int.Parse(mvOrg.Groups[3].Value),
+						int.Parse(mvOrg.Groups[1].Value),
+						int.Parse(mvOrg.Groups[2].Value), 0);
 
-                        return "Добавлено напоминание в " + date.Hour + ":" + date.Minute;
-                    }
-                    catch (Exception)
-                    {
-                        return "Напоминание не добавлено, ибо ты криворукий мудак.";
-                    }
-                }
-            }
-            return string.Empty;
-        }
-    }
+					dataList.Add(new TData
+					{
+						Text = mvOrg.Groups[5].Value,
+						Date = date,
+						ChatID = msg.Chat.Id
+					});
+
+					return "Добавлено напоминание в " + date.Hour + ":" + date.Minute + " " + date.Day + "." + date.Month;
+				}
+				catch (Exception)
+				{
+					try
+					{
+						DateTime date = new DateTime(
+							DateTime.Now.Year,
+							DateTime.Now.Month,
+							DateTime.Now.Day,
+							int.Parse(mvOrg.Groups[1].Value),
+							int.Parse(mvOrg.Groups[2].Value), 0);
+
+						dataList.Add(new TData
+						{
+							Text = mvOrg.Groups[5].Value,
+							Date = date,
+							ChatID = msg.Chat.Id,
+						});
+
+						return "Добавлено напоминание в " + date.Hour + ":" + date.Minute;
+					}
+					catch (Exception)
+					{
+						return "Напоминание не добавлено, ибо ты криворукий мудак.";
+					}
+				}
+			}
+
+			return string.Empty;
+		}
+	}
 }

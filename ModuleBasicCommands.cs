@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using den0bot.Util;
 using Telegram.Bot.Types;
 using File = System.IO.File;
 
@@ -24,7 +25,7 @@ namespace den0bot.Modules.Skybot
 				new Command
 				{
 					Name = "status",
-					Action = _ => $"Подключенные модули:\nModule_Answer\nModule_Roll\nНе падаем уже с {startup_time}"
+					Action = _ => $"Подключенные модули:\n{string.Join('\n',Config.Params.Modules)}\nНе падаем уже с {startup_time}"
 				},
 				new Command
 				{
@@ -47,11 +48,10 @@ namespace den0bot.Modules.Skybot
 		private string Hardware(Message msg)
 		{
 			string result = "Жаримся на таких статах:" +
-			                "\nBot uptime: " + (DateTime.Now - startup_time) +
-			                "\nSystem uptime: " + TimeSpan.FromMilliseconds(Environment.TickCount) +
-			                "\nSystem date: " + DateTime.Now.ToShortDateString() + " " +
-			                DateTime.Now.ToLongTimeString() +
-			                "\nOS Version: " + Environment.OSVersion;
+			                $"\nBot uptime: {(DateTime.Now - startup_time):dd\\.hh\\:mm\\:ss}" +
+			                $"\nSystem uptime: {TimeSpan.FromMilliseconds(Environment.TickCount):dd\\.hh\\:mm\\:ss}" +
+			                $"\nSystem date: {DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}" +
+			                $"\nOS Version: {Environment.OSVersion}";
 
 			if (Environment.Is64BitOperatingSystem) result += " x64";
 			else result += " x86";
@@ -65,10 +65,10 @@ namespace den0bot.Modules.Skybot
 			string result = "Я (опять) родился, (блять)!";
 
 			FileVersionInfo fileVersion =
-				FileVersionInfo.GetVersionInfo(Directory.GetCurrentDirectory() + "\\den0bot.exe");
+				FileVersionInfo.GetVersionInfo("den0bot.dll");
 			result += "\nVersion info: " + fileVersion.FileVersion;
 
-			FileInfo fileInfo = new FileInfo(Directory.GetCurrentDirectory() + "\\den0bot.exe");
+			FileInfo fileInfo = new FileInfo("den0bot.dll");
 			result += "\nBuild date: " + fileInfo.LastWriteTime;
 
 			return result;

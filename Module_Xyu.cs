@@ -26,7 +26,7 @@ namespace den0bot.Modules.Skybot
 		private string Xyu(Message msg)
 		{
 			if (phraseArray.Length > 0)
-				return phraseArray[RNG.Next(0, phraseArray.Length - 1)].Replace("%w", msg.Text.Remove(0, 4));
+				return phraseArray[RNG.Next(0, phraseArray.Length - 1)].Replace("%w", msg.Text.Remove(0, 5));
 
 			return String.Empty;
 		}
