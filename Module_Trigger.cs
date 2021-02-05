@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using den0bot.Types;
 using den0bot.Util;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot.Types;

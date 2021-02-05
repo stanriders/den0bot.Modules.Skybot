@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using den0bot.Types;
 using den0bot.Util;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot.Types;
@@ -88,7 +89,7 @@ namespace den0bot.Modules.Skybot
 			}
 		}
 
-		private string AddReply(Message msg)
+		private ICommandAnswer AddReply(Message msg)
 		{
 			var split = msg.Text.Remove(0, 10)
 								.Split('"')
@@ -113,10 +114,10 @@ namespace den0bot.Modules.Skybot
 					dbCache.Add(word);
 				}
 
-				return "Добавил";
+				return new TextCommandAnswer("Добавил");
 			}
 
-			return "/addreply \"сообщение\" \"ответ на сообщение\"";
+			return new TextCommandAnswer("/addreply \"сообщение\" \"ответ на сообщение\"");
 		}
 	}
 }

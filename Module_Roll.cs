@@ -3,6 +3,7 @@
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using den0bot.Types;
 using den0bot.Util;
 using Telegram.Bot.Types;
 

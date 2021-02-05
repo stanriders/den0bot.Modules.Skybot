@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using den0bot.Types;
 using den0bot.Util;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot.Types;
@@ -72,16 +73,16 @@ namespace den0bot.Modules.Skybot
 			}
 		}
 
-		private string SetInterval(Message msg)
+		private ICommandAnswer SetInterval(Message msg)
 		{
 			try
 			{
 				interval = Convert.ToInt32(msg.Text.Replace("set random interval ", ""));
-				return "New random interval equal " + interval;
+				return new TextCommandAnswer("New random interval equal " + interval);
 			}
 			catch (Exception)
 			{
-				return "Аккуратней играйся с такими командами блеать!";
+				return new TextCommandAnswer("Аккуратней играйся с такими командами блеать!");
 			}
 		}
 	}

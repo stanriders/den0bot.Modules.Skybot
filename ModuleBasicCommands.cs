@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using den0bot.Types;
 using den0bot.Util;
 using Telegram.Bot.Types;
 using File = System.IO.File;
@@ -20,12 +21,12 @@ namespace den0bot.Modules.Skybot
 				new Command
 				{
 					Name = "help",
-					Action = _ => "Лучше попроси рассказать анекдот"
+					Action = _ => new TextCommandAnswer("Лучше попроси рассказать анекдот")
 				},
 				new Command
 				{
 					Name = "status",
-					Action = _ => $"Подключенные модули:\n{string.Join('\n',Config.Params.Modules)}\nНе падаем уже с {startup_time}"
+					Action = _ => new TextCommandAnswer($"Подключенные модули:\n{string.Join('\n',Config.Params.Modules)}\nНе падаем уже с {startup_time}")
 				},
 				new Command
 				{
@@ -45,7 +46,7 @@ namespace den0bot.Modules.Skybot
 			});
 		}
 
-		private string Hardware(Message msg)
+		private ICommandAnswer Hardware(Message msg)
 		{
 			string result = "Жаримся на таких статах:" +
 			                $"\nBot uptime: {(DateTime.Now - startup_time):dd\\.hh\\:mm\\:ss}" +
@@ -57,10 +58,10 @@ namespace den0bot.Modules.Skybot
 			else result += " x86";
 
 			result += "\nEnvironment version: " + Environment.Version;
-			return result;
+			return new TextCommandAnswer(result);
 		}
 
-		private string Version(Message msg)
+		private ICommandAnswer Version(Message msg)
 		{
 			string result = "Я (опять) родился, (блять)!";
 
@@ -71,10 +72,10 @@ namespace den0bot.Modules.Skybot
 			FileInfo fileInfo = new FileInfo("den0bot.dll");
 			result += "\nBuild date: " + fileInfo.LastWriteTime;
 
-			return result;
+			return new TextCommandAnswer(result);
 		}
 
-		private string ChangeLog(Message msg)
+		private ICommandAnswer ChangeLog(Message msg)
 		{
 			string result = string.Empty;
 
@@ -97,7 +98,7 @@ namespace den0bot.Modules.Skybot
 				result += "В результате террористических действий повстанцев чейнджлог был похищен.";
 			}
 
-			return result;
+			return new TextCommandAnswer(result);
 		}
 	}
 }

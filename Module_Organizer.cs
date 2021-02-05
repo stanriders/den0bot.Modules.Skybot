@@ -1,4 +1,5 @@
-﻿using System;
+﻿using den0bot.Types;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Telegram.Bot.Types;
@@ -53,7 +54,7 @@ namespace den0bot.Modules.Skybot
 			}
 		}
 
-		private string Add(Message msg)
+		private ICommandAnswer Add(Message msg)
 		{
 			Match mvOrg = regex.Match(msg.Text);
 
@@ -75,7 +76,7 @@ namespace den0bot.Modules.Skybot
 						ChatID = msg.Chat.Id
 					});
 
-					return "Добавлено напоминание в " + date.Hour + ":" + date.Minute + " " + date.Day + "." + date.Month;
+					return new TextCommandAnswer("Добавлено напоминание в " + date.Hour + ":" + date.Minute + " " + date.Day + "." + date.Month);
 				}
 				catch (Exception)
 				{
@@ -95,16 +96,16 @@ namespace den0bot.Modules.Skybot
 							ChatID = msg.Chat.Id,
 						});
 
-						return "Добавлено напоминание в " + date.Hour + ":" + date.Minute;
+						return new TextCommandAnswer("Добавлено напоминание в " + date.Hour + ":" + date.Minute);
 					}
 					catch (Exception)
 					{
-						return "Напоминание не добавлено, ибо ты криворукий мудак.";
+						return new TextCommandAnswer("Напоминание не добавлено, ибо ты криворукий мудак.");
 					}
 				}
 			}
 
-			return string.Empty;
+			return null;
 		}
 	}
 }

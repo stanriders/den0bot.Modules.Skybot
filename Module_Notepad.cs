@@ -1,4 +1,5 @@
-﻿using System;
+﻿using den0bot.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -19,25 +20,25 @@ namespace den0bot.Modules.Skybot
             });
         }
 
-        private string Notepad(Message msg)
+        private ICommandAnswer Notepad(Message msg)
         {
             if (Regex.IsMatch(msg.Text, @"n(?:ote)?p(?:ad)?\s+(\d+)$"))
             {
-                return ProcessNotepadRead(
+                return new TextCommandAnswer(ProcessNotepadRead(
                     int.Parse(Regex.Match(msg.Text, @"n(?:ote)?p(?:ad)?\s+(\d+)$", RegexOptions.IgnoreCase).Groups[1].ToString()),
-                    msg.Chat.Id);
+                    msg.Chat.Id));
             }
             else if (Regex.IsMatch(msg.Text, @"n(?:ote)?p(?:ad)?\s+list$"))
             {
-                return ProcessNotepadList(msg.Chat.Id);
+                return new TextCommandAnswer(ProcessNotepadList(msg.Chat.Id));
             }
             else if (Regex.IsMatch(msg.Text, @"^n(ote)?p(ad)?\s+"))
             {
                 string message = new Regex(@"^n(ote)?p(ad)?\s+").Replace(msg.Text, string.Empty);
-                return ProcessNotepadWrite(message, msg.From.FirstName, msg.Chat.Id);
+                return new TextCommandAnswer(ProcessNotepadWrite(message, msg.From.FirstName, msg.Chat.Id));
             }
 
-            return string.Empty;
+            return null;
         }
 
         public string ProcessNotepadList(long chat)
