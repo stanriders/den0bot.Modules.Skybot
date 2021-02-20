@@ -26,7 +26,7 @@ namespace den0bot.Modules.Skybot
 				new Command
 				{
 					Name = "status",
-					Action = _ => new TextCommandAnswer($"Подключенные модули:\n{string.Join('\n',Config.Params.Modules)}\nНе падаем уже с {startup_time}")
+					Action = _ => new TextCommandAnswer($"Подключенные модули:\n{string.Join('\n',Bot.Modules)}\nНе падаем уже с {startup_time}")
 				},
 				new Command
 				{
