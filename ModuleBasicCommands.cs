@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using den0bot.Types;
+using den0bot.Types.Answers;
 using den0bot.Util;
 using Telegram.Bot.Types;
 using File = System.IO.File;

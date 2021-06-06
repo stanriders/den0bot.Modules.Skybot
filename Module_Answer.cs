@@ -7,8 +7,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using den0bot.Types;
+using den0bot.Types.Answers;
 using den0bot.Util;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using Telegram.Bot.Types;
 
 namespace den0bot.Modules.Skybot

@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using den0bot.Types;
 using den0bot.Util;
+using Serilog;
 using Telegram.Bot.Types;
 
 namespace den0bot.Modules.Skybot

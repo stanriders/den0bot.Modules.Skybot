@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using den0bot.Types.Answers;
 using Telegram.Bot.Types;
 
 namespace den0bot.Modules.Skybot
