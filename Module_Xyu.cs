@@ -1,6 +1,5 @@
 ﻿// Skybot 2013-2017
 
-using System;
 using den0bot.Types;
 using den0bot.Types.Answers;
 using den0bot.Util;
