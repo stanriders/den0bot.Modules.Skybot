@@ -48,10 +48,17 @@ namespace den0bot.Modules.Skybot
 				public int DataID { get; set; }
 			}
 
+			private readonly string databasePath;
+
 			public Database(string connectionString)
 			{
-				Database.SetConnectionString(connectionString);
+				databasePath = connectionString;
 				Database.EnsureCreated();
+			}
+
+			protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+			{
+				optionsBuilder.UseSqlite($"Filename={databasePath}");
 			}
 
 			public DbSet<TData> Data { get; set; }
@@ -83,10 +90,14 @@ namespace den0bot.Modules.Skybot
 		private List<Database.TData> _tDataList; // коллекция триггеров из БД
 		private List<TUserData> _tUserDataList = new(); // коллекция подобранных, но еще не сработавших триггеров
 
-		public Module_Trigger()
+		public override bool Init()
 		{
+			var ret = base.Init();
+
 			using (var db = new Database(GetConfigVariable("dbpath")))
 				_tDataList = db.Data.ToList();
+
+			return ret;
 		}
 
 		public async Task ReceiveMessage(Message message)

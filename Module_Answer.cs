@@ -28,10 +28,17 @@ namespace den0bot.Modules.Skybot
 				[Column("answer")] public string Answer { get; set; }
 			}
 
+			private readonly string databasePath;
+
 			public Database(string connectionString)
 			{
-				Database.SetConnectionString(connectionString);
+				databasePath = connectionString;
 				Database.EnsureCreated();
+			}
+
+			protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+			{
+				optionsBuilder.UseSqlite($"Filename={databasePath}");
 			}
 
 			public DbSet<Word> Words { get; set; }
@@ -40,18 +47,25 @@ namespace den0bot.Modules.Skybot
 		private readonly Dictionary<long, DateTime> nextPost = new(); // chatID, time
 		private const int cooldown = 5; // minutes
 
-		private readonly List<Database.Word> dbCache;
+		private List<Database.Word> dbCache;
 
 		public Module_Answer()
 		{
-			using (var db = new Database(GetConfigVariable("dbpath")))
-				dbCache = db.Words.ToList();
-
 			AddCommand(new Command
 			{
 				Name = "addreply",
 				Action = AddReply
 			});
+		}
+
+		public override bool Init()
+		{
+			var ret = base.Init();
+
+			using (var db = new Database(GetConfigVariable("dbpath")))
+				dbCache = db.Words.ToList();
+
+			return ret;
 		}
 
 		public async Task ReceiveMessage(Message msg)

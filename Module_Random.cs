@@ -27,10 +27,17 @@ namespace den0bot.Modules.Skybot
 				//[Column("answer")] public string Answer { get; set; }
 			}
 
+			private readonly string databasePath;
+
 			public Database(string connectionString)
 			{
-				Database.SetConnectionString(connectionString);
+				databasePath = connectionString;
 				Database.EnsureCreated();
+			}
+
+			protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+			{
+				optionsBuilder.UseSqlite($"Filename={databasePath}");
 			}
 
 			public DbSet<TData> Data { get; set; }
@@ -38,6 +45,17 @@ namespace den0bot.Modules.Skybot
 
 		public Module_Random()
 		{
+			AddCommand(new Command
+			{
+				Name = "set random interval",
+				Action = SetInterval
+			});
+		}
+
+		public override bool Init()
+		{
+			var ret = base.Init();
+
 			using (var connection = new Database(GetConfigVariable("dbpath")))
 			{
 				//_textList = connection.Data.ToDictionary(x=> x.);
@@ -45,12 +63,7 @@ namespace den0bot.Modules.Skybot
 
 			interval = Convert.ToInt32(GetConfigVariable("interval"));
 
-			AddCommand(new Command
-			{
-				Name = "set random interval",
-				Action = SetInterval
-			});
-
+			return ret;
 		}
 
 		public override void Think()
